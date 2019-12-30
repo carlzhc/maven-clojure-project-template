@@ -7,6 +7,7 @@ define(`_dependency', `
       <groupId>$1</groupId>
       <artifactId>$2</artifactId>
       <version>$3</version>
+      <scope>ifelse($4,,compile,$4)</scope>
     </dependency>
 ')dnl
 -->
@@ -179,6 +180,7 @@ define(`_dependency', `
     _dependency(org.clojure, tools.nrepl, 0.2.13)
     _dependency(org.clojure, data.json, 0.2.7)
     _dependency(org.clojure, data.xml, 0.0.8)
+    _dependency(org.clojure, data.csv, 0.1.4, system)
     <!--
     _dependency(org.clojure, core.async, 0.6.532)
     _dependency(org.apache.httpcomponents, httpclient, 4.5.10)
