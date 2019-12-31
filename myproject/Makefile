@@ -2,22 +2,25 @@ proj := myproject
 pom := pom.xml
 
 all:
-	@echo "usage: $(MAKE) <compile|run|package|repl|nrepl>"
+	@echo "usage: $(MAKE) <compile|test|run|package|assembly|repl|nrepl|clean>"
 
+depends: $(pom)
 $(pom): pom.xml.m4
-	m4 $< | /usr/bin/xmllint --format - >$@
+	m4 $< | /usr/bin/xmllint --format --output $@ -
 
-compile: $(pom)
-	mvn clojure:compile
+compile test repl nrepl: depends
+	mvn clojure:$@
 
-package: $(pom)
+package: depends
 	mvn -Dmaven.test.skip=true package
 
-run: $(pom)
-	mvn clojure:run -Dclojure.script=src/$(subst .,/,$(proj))/core.clj
+assembly: depends
+	mvn assembly:single
 
-nrepl repl: $(pom)
-	mvn clojure:$@
+run: depends
+	mvn clojure:run
 
 clean:
 	-rm -rf target
+
+.PHONY: all depends compile test repl nrepl package assembly run clean

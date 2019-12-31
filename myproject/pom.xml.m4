@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?> <!-- -*- mode: nxml -*- dnl
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This file is generated automatically, do not modify. dnl
 define(`_GROUPID', `com.example')dnl
 define(`_NAME', esyscmd(`echo -n ${PWD##*/}'))dnl
 define(`_ARTIFACTID', _NAME)dnl
@@ -7,7 +8,7 @@ define(`_dependency', `
       <groupId>$1</groupId>
       <artifactId>$2</artifactId>
       <version>$3</version>
-      <scope>ifelse($4,,compile,$4)</scope>
+      <scope>ifelse(`$4',,`compile',`$4')</scope>
     </dependency>
 ')dnl
 -->
@@ -28,6 +29,7 @@ define(`_dependency', `
     </license>
   </licenses>
   <scm/>
+
   <properties>
     <revision>0.1.0-SNAPSHOT</revision>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -35,20 +37,18 @@ define(`_dependency', `
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <java.version>1.8</java.version>
+    <clojure.mainClass>_ARTIFACTID.core</clojure.mainClass>
   </properties>
+
+  <dependencies>
+    _dependency(org.clojure, clojure, 1.10.1)
+    _dependency(org.clojure, tools.reader, 1.3.2)
+    _dependency(org.clojure, tools.nrepl, 0.2.13)
+    _dependency(org.clojure, data.json, 0.2.7)
+    _dependency(org.clojure, data.xml, 0.0.8)
+  </dependencies>
+
   <build>
-    <sourceDirectory>src</sourceDirectory>
-    <testSourceDirectory>test</testSourceDirectory>
-    <resources>
-      <resource>
-        <directory>resources</directory>
-      </resource>
-    </resources>
-    <testResources>
-      <testResource>
-        <directory>resources</directory>
-      </testResource>
-    </testResources>
     <directory>target</directory>
     <outputDirectory>target/classes</outputDirectory>
 
@@ -60,7 +60,7 @@ define(`_dependency', `
         <extensions>true</extensions>
         <executions>
           <execution>
-            <id>compile</id>
+            <id>compile-clojure</id>
             <phase>compile</phase>
             <goals>
               <goal>compile</goal>
@@ -74,15 +74,8 @@ define(`_dependency', `
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <sourceDirectories>
-            <sourceDirectory>src</sourceDirectory>
-          </sourceDirectories>
-          <testSourceDirectories>
-            <testSourceDirectory>test</testSourceDirectory>
-          </testSourceDirectories>
-        </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -91,12 +84,14 @@ define(`_dependency', `
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
-              <mainClass>_ARTIFACTID.core</mainClass>
-              <classpathPrefix>dependency</classpathPrefix>
+              <mainClass>${clojure.mainClass}</mainClass>
+              <classpathPrefix>dependency/</classpathPrefix>
+              <classpathLayoutType>simple</classpathLayoutType>
             </manifest>
           </archive>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
@@ -115,22 +110,15 @@ define(`_dependency', `
           <target>1.8</target>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>3.2.0</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
         <configuration>
           <archive>
             <manifest>
-              <mainClass>_ARTIFACTID.core</mainClass>
+              <mainClass>${clojure.mainClass}</mainClass>
             </manifest>
           </archive>
           <descriptorRefs>
@@ -138,6 +126,7 @@ define(`_dependency', `
           </descriptorRefs>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -149,6 +138,7 @@ define(`_dependency', `
       </plugin>
     </plugins>
   </build>
+
   <repositories>
     <repository>
       <id>central</id>
@@ -171,19 +161,4 @@ define(`_dependency', `
       </releases>
     </repository>
   </repositories>
-  <dependencyManagement>
-    <dependencies/>
-  </dependencyManagement>
-  <dependencies>
-    _dependency(org.clojure, clojure, 1.10.1)
-    _dependency(org.clojure, tools.reader, 1.3.2)
-    _dependency(org.clojure, tools.nrepl, 0.2.13)
-    _dependency(org.clojure, data.json, 0.2.7)
-    _dependency(org.clojure, data.xml, 0.0.8)
-    _dependency(org.clojure, data.csv, 0.1.4, system)
-    <!--
-    _dependency(org.clojure, core.async, 0.6.532)
-    _dependency(org.apache.httpcomponents, httpclient, 4.5.10)
-    -->
-  </dependencies>
 </project>
