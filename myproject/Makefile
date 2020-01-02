@@ -2,7 +2,7 @@ proj := myproject
 pom := pom.xml
 
 all:
-	@echo "usage: $(MAKE) <compile|test|run|package|assembly|repl|nrepl|clean>"
+	@echo "usage: $(MAKE) <depends|compile|test|run|package|assembly|repl|nrepl|clean>"
 
 depends: $(pom)
 $(pom): pom.xml.m4
@@ -15,9 +15,9 @@ package: depends
 	mvn -Dmaven.test.skip=true package
 
 assembly: depends
-	mvn assembly:single
+	mvn -Dmaven.test.skip=true package assembly:single
 
-run: depends
+run: package
 	mvn clojure:run
 
 clean:
