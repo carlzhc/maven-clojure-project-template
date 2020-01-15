@@ -4,12 +4,12 @@ define(`_GROUPID', `com.example')dnl
 define(`_NAME', esyscmd(`echo -n ${PWD##*/}'))dnl
 define(`_ARTIFACTID', _NAME)dnl
 define(`_dependency', `
-    <dependency>
-      <groupId>$1</groupId>
-      <artifactId>$2</artifactId>
-      <version>$3</version>
-      <scope>ifelse(`$4',,`compile',`$4')</scope>
-    </dependency>
+<dependency>
+<groupId>$1</groupId>
+<artifactId>$2</artifactId>
+<version>$3</version>
+<scope>ifelse(`$4',,`compile',`$4')</scope>
+</dependency>
 ')dnl
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -34,9 +34,9 @@ define(`_dependency', `
     <revision>0.1.0-SNAPSHOT</revision>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <java.version>1.8</java.version>
+    <java.version>11</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
     <clojure.mainClass>_ARTIFACTID.core</clojure.mainClass>
   </properties>
 
@@ -53,10 +53,71 @@ define(`_dependency', `
     <outputDirectory>target/classes</outputDirectory>
 
     <plugins>
+      <!-- lock down plugins versions to avoid using Maven defaults -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.0.0-M4</version>
+        <configuration>
+          <argLine>
+            --illegal-access=permit
+          </argLine>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>3.0.0-M4</version>
+        <configuration>
+          <argLine>
+            --illegal-access=permit
+          </argLine>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.0.0-M3</version>
+        <executions>
+          <execution>
+            <id>enforce-maven</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>3.3</version>
+                </requireMavenVersion>
+                <requireJavaVersion>
+                  <version>[11.0.2,)</version>
+                </requireJavaVersion>
+
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
+        <version>2.7</version>
+        <configuration>
+          <generateBackupPoms>false</generateBackupPoms>
+        </configuration>
+      </plugin>
+
       <plugin>
         <groupId>com.theoryinpractise</groupId>
         <artifactId>clojure-maven-plugin</artifactId>
-        <version>1.8.3</version>
+        <version>1.8.4</version>
         <extensions>true</extensions>
         <executions>
           <execution>
@@ -126,16 +187,6 @@ define(`_dependency', `
           </descriptorRefs>
         </configuration>
       </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.7.0</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
-      </plugin>
     </plugins>
   </build>
 
@@ -162,3 +213,7 @@ define(`_dependency', `
     </repository>
   </repositories>
 </project>
+
+<!-- Local Variables: -->
+<!-- mode: nxml -->
+<!-- End: -->

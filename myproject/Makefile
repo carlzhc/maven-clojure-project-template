@@ -21,6 +21,6 @@ run: package
 	mvn clojure:run
 
 clean:
-	-rm -rf target
+	-mvn clean
 
 .PHONY: all depends compile test repl nrepl package assembly run clean
