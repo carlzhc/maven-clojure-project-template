@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- This file is generated automatically, do not modify. dnl
-define(`_GROUPID', `com.example')dnl
-define(`_NAME', esyscmd(`echo -n ${PWD##*/}'))dnl
-define(`_ARTIFACTID', _NAME)dnl
+ifdef(`_GROUPID',,`define(`_GROUPID', `com.example')')dnl
+ifdef(`_NAME',,`define(`_NAME', esyscmd(`echo -n ${PWD##*/}'))')dnl
+ifdef(`_ARTIFACTID',,`define(`_ARTIFACTID', _NAME)')dnl
 define(`_dependency', `
 <dependency>
 <groupId>$1</groupId>
@@ -42,10 +42,10 @@ define(`_dependency', `
 
   <dependencies>
     _dependency(org.clojure, clojure, 1.10.1)
-    _dependency(org.clojure, tools.reader, 1.3.2)
-    _dependency(org.clojure, tools.nrepl, 0.2.13)
-    _dependency(org.clojure, data.json, 0.2.7)
+    _dependency(org.clojure, tools.reader, 1.3.3)
+    _dependency(org.clojure, data.json, 1.0.0)
     _dependency(org.clojure, data.xml, 0.0.8)
+    _dependency(nrepl, nrepl, 0.6.0, test)
   </dependencies>
 
   <build>
@@ -70,6 +70,7 @@ define(`_dependency', `
           </argLine>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
@@ -80,6 +81,7 @@ define(`_dependency', `
           </argLine>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
@@ -98,7 +100,6 @@ define(`_dependency', `
                 <requireJavaVersion>
                   <version>[11.0.2,)</version>
                 </requireJavaVersion>
-
               </rules>
             </configuration>
           </execution>

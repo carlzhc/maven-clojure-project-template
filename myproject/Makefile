@@ -1,7 +1,21 @@
-proj := myproject
-pom := pom.xml
-groupId := hk.idv.karl
+name :=
+groupId :=
+artifactid :=
 
+
+ifdef groupId
+pom_macros := $(pom_macros) -D_GROUPID=$(groupId)
+endif
+
+ifdef name
+pom_macros := $(pom_macros) -D_NAME=$(name)
+endif
+
+ifdef artifactid
+pom_macros := $(pom_macros) -D_ARTIFACTID=$(artifactid)
+endif
+
+pom := pom.xml
 
 all:
 	@echo "usage: $(MAKE) <pom|depends|compile|test|run|package|assembly|repl|nrepl|clean|app|clojure>"
@@ -16,7 +30,7 @@ clojure: $(pom)
 depends: $(pom)
 pom: $(pom)
 $(pom): $(pom).m4
-	m4 $< | /usr/bin/xmllint --format --output $@ -
+	m4 $(pom_macros) $< | /usr/bin/xmllint --format --output $@ -
 
 compile test repl nrepl: depends
 	mvn clojure:$@
