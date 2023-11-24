@@ -34,18 +34,29 @@ define(`_dependency', `
     <revision>0.1.0-SNAPSHOT</revision>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <java.version>11</java.version>
+    <java.version>17</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
+    <maven.version.ignore>.+[-_.](alpha|Alpha|ALPHA|b|beta|Beta|BETA|rc|RC|M|EA)[-_.]?[0-9]*</maven.version.ignore>
     <clojure.mainClass>_ARTIFACTID.core</clojure.mainClass>
   </properties>
 
   <dependencies>
-    _dependency(org.clojure, clojure, 1.10.1)
-    _dependency(org.clojure, tools.reader, 1.3.3)
-    _dependency(org.clojure, data.json, 1.0.0)
-    _dependency(org.clojure, data.xml, 0.0.8)
-    _dependency(nrepl, nrepl, 0.6.0, test)
+    _dependency(org.clojure, clojure, 1.11.1)
+    _dependency(org.clojure, core.async, 1.6.681)
+dnl    _dependency(org.clojure, core.cache, 1.0.225)
+dnl    _dependency(org.clojure, core.logic, 1.0.1)
+dnl    _dependency(org.clojure, core.memoize, 1.0.257)
+dnl    _dependency(org.clojure, core.specs.alpha, 0.2.62)
+    _dependency(org.clojure, data.json, 2.4.0)
+dnl    _dependency(org.clojure, data.priority-map, 1.1.0)
+dnl    _dependency(org.clojure, data.xml, 0.0.8)
+dnl    _dependency(org.clojure, test.check, 1.1.1, test)
+dnl    _dependency(org.clojure, test.generative, 1.0.0, test)
+    _dependency(org.clojure, tools.logging, 1.2.4)
+    _dependency(org.clojure, tools.nrepl, 0.2.13, test)
+dnl    _dependency(org.clojure, tools.reader, 1.3.7)
+dnl    _dependency(org.clojure, tools.trace, 0.7.11)
   </dependencies>
 
   <build>
@@ -55,15 +66,24 @@ define(`_dependency', `
     <plugins>
       <!-- lock down plugins versions to avoid using Maven defaults -->
       <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
+        <version>2.16.2</version>
+        <configuration>
+          <generateBackupPoms>false</generateBackupPoms>
+        </configuration>
+      </plugin>
+
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
+        <version>3.11.0</version>
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.0.0-M5</version>
+        <version>3.2.2</version>
         <configuration>
           <argLine>
             --illegal-access=permit
@@ -74,7 +94,7 @@ define(`_dependency', `
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <version>3.0.0-M5</version>
+        <version>3.2.2</version>
         <configuration>
           <argLine>
             --illegal-access=permit
@@ -85,7 +105,7 @@ define(`_dependency', `
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.0.0-M3</version>
+        <version>3.4.1</version>
         <executions>
           <execution>
             <id>enforce-maven</id>
@@ -107,19 +127,11 @@ define(`_dependency', `
       </plugin>
 
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>versions-maven-plugin</artifactId>
-        <version>2.8.1</version>
-        <configuration>
-          <generateBackupPoms>false</generateBackupPoms>
-        </configuration>
-      </plugin>
-
-      <plugin>
         <groupId>com.theoryinpractise</groupId>
         <artifactId>clojure-maven-plugin</artifactId>
-        <version>1.8.4</version>
+        <version>1.9.2</version>
         <extensions>true</extensions>
+	divert(`-1')dnl
         <executions>
           <execution>
             <id>compile-clojure</id>
@@ -136,12 +148,13 @@ define(`_dependency', `
             </goals>
           </execution>
         </executions>
+	divert`'
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>3.2.0</version>
+        <version>3.3.0</version>
         <configuration>
           <archive>
             <manifest>
@@ -157,7 +170,7 @@ define(`_dependency', `
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>3.1.2</version>
+        <version>3.6.1</version>
         <executions>
           <execution>
             <id>copy-dependencies</id>
@@ -167,16 +180,12 @@ define(`_dependency', `
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.3.0</version>
+        <version>3.6.0</version>
         <configuration>
           <archive>
             <manifest>
@@ -202,16 +211,16 @@ define(`_dependency', `
         <enabled>true</enabled>
       </releases>
     </repository>
-    <repository>
-      <id>clojars</id>
-      <url>https://repo.clojars.org/</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </repository>
+    <!-- <repository> -->
+    <!--   <id>clojars</id> -->
+    <!--   <url>https://repo.clojars.org/</url> -->
+    <!--   <snapshots> -->
+    <!--     <enabled>true</enabled> -->
+    <!--   </snapshots> -->
+    <!--   <releases> -->
+    <!--     <enabled>true</enabled> -->
+    <!--   </releases> -->
+    <!-- </repository> -->
   </repositories>
 </project>
 

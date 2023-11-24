@@ -1,6 +1,6 @@
-name :=
-groupId :=
-artifactid :=
+name ?=
+groupId ?=
+artifactId ?=
 
 
 ifdef groupId
@@ -11,8 +11,8 @@ ifdef name
 pom_macros := $(pom_macros) -D_NAME=$(name)
 endif
 
-ifdef artifactid
-pom_macros := $(pom_macros) -D_ARTIFACTID=$(artifactid)
+ifdef artifactId
+pom_macros := $(pom_macros) -D_ARTIFACTID=$(artifactId)
 endif
 
 pom := pom.xml
@@ -21,18 +21,36 @@ all:
 	@echo "usage: $(MAKE) <pom|depends|compile|test|run|package|assembly|repl|nrepl|clean|app|clojure>"
 
 
-app: $(pom)
-	mvn archetype:generate -DarchetypeArtifactId=maven-archetype-quickstart -DgroupId=$(groupId) -Dversion=0.0.1-SNAPSHOT
+app:
+	mvn archetype:generate -DarchetypeArtifactId=maven-archetype-quickstart \
+	-DgroupId=$(groupId) -DartifactId=$(artifactId) -Dversion=0.0.1-SNAPSHOT
+	$(MAKE) pom
 
-clojure: $(pom)
-	mvn archetype:generate -DarchetypeGroupId=tk.skuro -DarchetypeArtifactId=clojure-maven-archetype -DgroupId=$(groupId) -Dversion=0.0.1-SNAPSHOT
+clojure:
+	mvn archetype:generate -DarchetypeGroupId=tk.skuro -DarchetypeArtifactId=clojure-maven-archetype \
+	-DgroupId=$(groupId) -DartifactId=$(artifactId) -Dversion=0.0.1-SNAPSHOT -Dpackage=$(groupId)-$(artifactId)
+	$(MAKE) pom
 
-depends: $(pom)
+depends: $(pom) src/main/clojure/$(artifactId)/core.clj
 pom: $(pom)
 $(pom): $(pom).m4
 	m4 $(pom_macros) $< | /usr/bin/xmllint --format --output $@ -
 
-compile test repl nrepl: depends
+src/main/clojure/$(artifactId)/core.clj:
+	mkdir -p src/{main,test}/{clojure,java,resources}
+	mkdir -p src/{main,test}/{clojure,java}/$(artifactId)
+	( \
+echo '(ns $(artifactId).core'; \
+echo '  (:gen-class))'; \
+echo ''; \
+echo '(defn -main'; \
+echo '  "I do not do a whole lot ... yet."'; \
+echo '  [& args]'; \
+echo '  (println "Hello, World!"))'; \
+) > $@
+
+
+compile test repl: depends
 	mvn clojure:$@
 
 package: depends
