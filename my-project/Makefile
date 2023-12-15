@@ -1,6 +1,6 @@
-name ?=
-groupId ?=
-artifactId ?=
+name ?= my-project
+groupId ?= my.group
+artifactId ?= my-artifact
 
 
 ifdef groupId
@@ -13,6 +13,7 @@ endif
 
 ifdef artifactId
 pom_macros := $(pom_macros) -D_ARTIFACTID=$(artifactId)
+artifactId_d := $(subst -,_,$(artifactId))
 endif
 
 pom := pom.xml
@@ -31,14 +32,14 @@ clojure:
 	-DgroupId=$(groupId) -DartifactId=$(artifactId) -Dversion=0.0.1-SNAPSHOT -Dpackage=$(groupId)-$(artifactId)
 	$(MAKE) pom
 
-depends: $(pom) src/main/clojure/$(artifactId)/core.clj
+depends: $(pom) src/main/clojure/$(artifactId_d)/core.clj
 pom: $(pom)
-$(pom): $(pom).m4
+$(pom): $(pom).m4 Makefile
 	m4 $(pom_macros) $< | /usr/bin/xmllint --format --output $@ -
 
-src/main/clojure/$(artifactId)/core.clj:
+src/main/clojure/$(artifactId_d)/core.clj:
 	mkdir -p src/{main,test}/{clojure,java,resources}
-	mkdir -p src/{main,test}/{clojure,java}/$(artifactId)
+	mkdir -p src/{main,test}/{clojure,java}/$(artifactId_d)
 	( \
 echo '(ns $(artifactId).core'; \
 echo '  (:gen-class))'; \
@@ -54,10 +55,10 @@ compile test repl: depends
 	mvn clojure:$@
 
 package: depends
-	mvn -Dmaven.test.skip=true package
+	mvn package
 
 assembly: depends
-	mvn -Dmaven.test.skip=true package assembly:single
+	mvn package assembly:single
 
 run: package
 	mvn clojure:run

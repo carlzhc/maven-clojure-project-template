@@ -38,22 +38,22 @@ define(`_dependency', `
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <maven.version.ignore>.+[-_.](alpha|Alpha|ALPHA|b|beta|Beta|BETA|rc|RC|M|EA)[-_.]?[0-9]*</maven.version.ignore>
-    <clojure.mainClass>_ARTIFACTID.core</clojure.mainClass>
+    <clojure.mainClass>translit(_ARTIFACTID, -, _).core</clojure.mainClass>
   </properties>
 
   <dependencies>
-    _dependency(org.clojure, clojure, 1.11.1)
-    _dependency(org.clojure, core.async, 1.6.681)
+    _dependency(org.clojure, clojure, 1.8.0)
+dnl    _dependency(org.clojure, core.async, 1.6.681)
 dnl    _dependency(org.clojure, core.cache, 1.0.225)
 dnl    _dependency(org.clojure, core.logic, 1.0.1)
 dnl    _dependency(org.clojure, core.memoize, 1.0.257)
 dnl    _dependency(org.clojure, core.specs.alpha, 0.2.62)
-    _dependency(org.clojure, data.json, 2.4.0)
+dnl    _dependency(org.clojure, data.json, 2.4.0)
 dnl    _dependency(org.clojure, data.priority-map, 1.1.0)
 dnl    _dependency(org.clojure, data.xml, 0.0.8)
 dnl    _dependency(org.clojure, test.check, 1.1.1, test)
-dnl    _dependency(org.clojure, test.generative, 1.0.0, test)
-    _dependency(org.clojure, tools.logging, 1.2.4)
+    _dependency(org.clojure, test.generative, 1.0.0, test)
+dnl    _dependency(org.clojure, tools.logging, 1.2.4)
     _dependency(org.clojure, tools.nrepl, 0.2.13, test)
 dnl    _dependency(org.clojure, tools.reader, 1.3.7)
 dnl    _dependency(org.clojure, tools.trace, 0.7.11)
