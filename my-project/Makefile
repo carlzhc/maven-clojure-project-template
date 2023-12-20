@@ -1,35 +1,23 @@
 name ?= my-project
 groupId ?= my.group
 artifactId ?= my-artifact
-
-
-ifdef groupId
-pom_macros := $(pom_macros) -D_GROUPID=$(groupId)
-endif
-
-ifdef name
-pom_macros := $(pom_macros) -D_NAME=$(name)
-endif
-
-ifdef artifactId
-pom_macros := $(pom_macros) -D_ARTIFACTID=$(artifactId)
+version ?= 0.0.1-SNAPSHOT
 artifactId_d := $(subst -,_,$(artifactId))
-endif
-
+pom_macros := -D_GROUPID=$(groupId) -D_NAME=$(name) -D_VERSION=$(version) -D_ARTIFACTID=$(artifactId)
 pom := pom.xml
 
 all:
-	@echo "usage: $(MAKE) <pom|depends|compile|test|run|package|assembly|repl|nrepl|clean|app|clojure>"
+	@echo "usage: $(MAKE) <pom|depends|compile|test|run|package|assembly|native|repl|nrepl|clean|app|clojure>"
 
 
 app:
 	mvn archetype:generate -DarchetypeArtifactId=maven-archetype-quickstart \
-	-DgroupId=$(groupId) -DartifactId=$(artifactId) -Dversion=0.0.1-SNAPSHOT
+	-DgroupId=$(groupId) -DartifactId=$(artifactId) -Dversion=$(version)
 	$(MAKE) pom
 
 clojure:
 	mvn archetype:generate -DarchetypeGroupId=tk.skuro -DarchetypeArtifactId=clojure-maven-archetype \
-	-DgroupId=$(groupId) -DartifactId=$(artifactId) -Dversion=0.0.1-SNAPSHOT -Dpackage=$(groupId)-$(artifactId)
+	-DgroupId=$(groupId) -DartifactId=$(artifactId) -Dversion=$(version) -Dpackage=$(groupId)-$(artifactId)
 	$(MAKE) pom
 
 depends: $(pom) src/main/clojure/$(artifactId_d)/core.clj
@@ -57,8 +45,16 @@ compile test repl: depends
 package: depends
 	mvn package
 
-assembly: depends
+uberjar_file := target/$(artifactId)-$(version)-jar-with-dependencies.jar
+
+assembly: $(uberjar_file)
+$(uberjar_file): depends
 	mvn package assembly:single
+
+native_image := target/$(artifactId)-$(version)
+native: assembly $(native_image)
+$(native_image):
+	native-image --initialize-at-build-time --report-unsupported-elements-at-runtime -jar $(uberjar_file) $@
 
 run: package
 	mvn clojure:run

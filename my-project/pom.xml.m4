@@ -3,6 +3,7 @@
 ifdef(`_GROUPID',,`define(`_GROUPID', `com.example')')dnl
 ifdef(`_NAME',,`define(`_NAME', esyscmd(`echo -n ${PWD##*/}'))')dnl
 ifdef(`_ARTIFACTID',,`define(`_ARTIFACTID', _NAME)')dnl
+ifdef(`_VERSION',,`define(`_VERSION', `0.0.1-SNAPSHOT')')dnl
 define(`_dependency', `
 <dependency>
 <groupId>$1</groupId>
@@ -31,7 +32,7 @@ define(`_dependency', `
   <scm/>
 
   <properties>
-    <revision>0.1.0-SNAPSHOT</revision>
+    <revision>_VERSION</revision>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <java.version>17</java.version>
@@ -52,9 +53,9 @@ dnl    _dependency(org.clojure, data.json, 2.4.0)
 dnl    _dependency(org.clojure, data.priority-map, 1.1.0)
 dnl    _dependency(org.clojure, data.xml, 0.0.8)
 dnl    _dependency(org.clojure, test.check, 1.1.1, test)
-    _dependency(org.clojure, test.generative, 1.0.0, test)
+dnl    _dependency(org.clojure, test.generative, 1.0.0, test)
 dnl    _dependency(org.clojure, tools.logging, 1.2.4)
-    _dependency(org.clojure, tools.nrepl, 0.2.13, test)
+dnl    _dependency(org.clojure, tools.nrepl, 0.2.13, test)
 dnl    _dependency(org.clojure, tools.reader, 1.3.7)
 dnl    _dependency(org.clojure, tools.trace, 0.7.11)
   </dependencies>
