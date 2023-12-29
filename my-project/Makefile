@@ -5,6 +5,11 @@ version ?= 0.0.1-SNAPSHOT
 artifactId_d := $(subst -,_,$(artifactId))
 pom_macros := -D_GROUPID=$(groupId) -D_NAME=$(name) -D_VERSION=$(version) -D_ARTIFACTID=$(artifactId)
 pom := pom.xml
+src := \
+$(pom) \
+src/main/clojure/$(artifactId_d)/core.clj \
+$(shell find src/main/ -type f ! -path '*/$(artifactId_d)/core.clj') \
+
 
 all:
 	@echo "usage: $(MAKE) <pom|depends|compile|test|run|package|assembly|native|repl|nrepl|clean|app|clojure>"
@@ -20,7 +25,8 @@ clojure:
 	-DgroupId=$(groupId) -DartifactId=$(artifactId) -Dversion=$(version) -Dpackage=$(groupId)-$(artifactId)
 	$(MAKE) pom
 
-depends: $(pom) src/main/clojure/$(artifactId_d)/core.clj
+depends: $(src)
+
 pom: $(pom)
 $(pom): $(pom).m4 Makefile
 	m4 $(pom_macros) $< | /usr/bin/xmllint --format --output $@ -
