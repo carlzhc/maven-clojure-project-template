@@ -7,12 +7,13 @@ pom_macros := -D_GROUPID=$(groupId) -D_NAME=$(name) -D_VERSION=$(version) -D_ART
 pom := pom.xml
 src := \
 $(pom) \
+bb.edn \
 src/main/clojure/$(artifactId_d)/core.clj \
 $(shell find src/main/ -type f ! -path '*/$(artifactId_d)/core.clj') \
 
 
 all:
-	@echo "usage: $(MAKE) <pom|depends|compile|test|run|package|assembly|native|repl|nrepl|clean|app|clojure>"
+	@echo "usage: $(MAKE) <pom|depends|compile|test|run|package|assembly|native|bb-uberjar|bb-uberscript|repl|nrepl|clean|app|clojure>"
 
 
 app:
@@ -45,6 +46,9 @@ echo '  (println "Hello, World!"))'; \
 ) > $@
 
 
+bb.edn:
+	echo '{:paths ["src/main/clojure" "src/main/resources"]}' > $@
+
 compile test repl: depends
 	mvn clojure:$@
 
@@ -62,10 +66,18 @@ native: assembly $(native_image)
 $(native_image):
 	native-image --initialize-at-build-time --report-unsupported-elements-at-runtime -jar $(uberjar_file) $@
 
+bb-uberscript: target/$(artifactId)-$(version).uber.clj
+target/$(artifactId)-$(version).uber.clj: $(src)
+	bb uberscript $@ -m $(artifactId).core
+
+bb-uberjar: target/$(artifactId)-$(version).uber.jar
+target/$(artifactId)-$(version).uber.jar: $(src)
+	bb uberjar $@ -m $(artifactId).core
+
 run: package
 	mvn clojure:run
 
 clean:
 	-mvn clean
 
-.PHONY: all depends compile test repl nrepl package assembly run clean
+.PHONY: all depends compile test repl nrepl package assembly bb-uberscript bb-uberjar run clean
