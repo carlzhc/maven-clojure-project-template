@@ -1,83 +1,32 @@
-name ?= my-project
-groupId ?= my.group
-artifactId ?= my-artifact
-version ?= 0.0.1-SNAPSHOT
-artifactId_d := $(subst -,_,$(artifactId))
-pom_macros := -D_GROUPID=$(groupId) -D_NAME=$(name) -D_VERSION=$(version) -D_ARTIFACTID=$(artifactId)
+parent_name ?= _PARENT-NAME
+parent_groupId ?= _PARENT-GROUPID
+parent_artifactId ?= _PARENT-ARTIFACTID
+parent_version ?= _PARENT-VERSION
+artifactId_d := $(subst -,_,$(parent_artifactId))
+pom__macros := -D_GROUPID=$(parent_groupId) -D_NAME=$(parent_name) -D_VERSION=$(parent_version) -D_ARTIFACTID=$(parent_artifactId)
 pom := pom.xml
-src := \
-$(pom) \
-bb.edn \
-src/main/clojure/$(artifactId_d)/core.clj \
-$(shell find src/main/ -type f ! -path '*/$(artifactId_d)/core.clj') \
-
 
 all:
-	@echo "usage: $(MAKE) <pom|depends|compile|test|run|package|assembly|native|bb-uberjar|bb-uberscript|repl|nrepl|clean|app|clojure>"
-
-
-app:
-	mvn archetype:generate -DarchetypeArtifactId=maven-archetype-quickstart \
-	-DgroupId=$(groupId) -DartifactId=$(artifactId) -Dversion=$(version)
-	$(MAKE) pom
-
-clojure:
-	mvn archetype:generate -DarchetypeGroupId=tk.skuro -DarchetypeArtifactId=clojure-maven-archetype \
-	-DgroupId=$(groupId) -DartifactId=$(artifactId) -Dversion=$(version) -Dpackage=$(groupId)-$(artifactId)
-	$(MAKE) pom
-
-depends: $(src)
+	@echo "usage: $(MAKE) clean"
+	@echo "usage: $(MAKE) pom [parent_name=PROJECT] [parent_groupId=GROUP_ID] [parent_artifactId=ARTIFACT_ID] [parent_version=VERSION]"
+	@echo "usage: $(MAKE) submodule [name=PROJECT] [groupId=GROUP_ID] [artifactId=ARTIFACT_ID] [version=VERSION]"
 
 pom: $(pom)
 $(pom): $(pom).m4 Makefile
-	m4 $(pom_macros) $< | /usr/bin/xmllint --format --output $@ -
+	m4 $(pom_macros) $(pom).m4 | /usr/bin/xmllint --format --output $@ -
 
-src/main/clojure/$(artifactId_d)/core.clj:
-	mkdir -p src/{main,test}/{clojure,java,resources}
-	mkdir -p src/{main,test}/{clojure,java}/$(artifactId_d)
-	( \
-echo '(ns $(artifactId).core'; \
-echo '  (:gen-class))'; \
-echo ''; \
-echo '(defn -main'; \
-echo '  "I do not do a whole lot ... yet."'; \
-echo '  [& args]'; \
-echo '  (println "Hello, World!"))'; \
-) > $@
+submodule: $(pom) $(name)/$(pom).m4
+$(name)/$(pom).m4: $(pom).m4.submodule
+	[[ "$(@D)" ]] && [[ "$(@D)" != /* ]]
+	mkdir -p $(@D)/src/{main,test}/clojure
+	cp -f Makefile.submodule $(@D)/Makefile
+	m4 -D_PARENT_GROUPID=$(parent_groupId) -D_PARENT_NAME=$(parent_name) -D_PARENT_ARTIFACTID=$(parent_artifactId) \
+	   -D_PARENT_VERSION=$(parent_version) -D_GROUPID=$(groupId) -D_NAME=$(name) -D_VERSION=$(version) \
+	   -D_ARTIFACTID=$(artifactId) $< >$@
+	cd $(@D) && make pom
 
+.PHONY: all pom submodule clean
 
-bb.edn:
-	echo '{:paths ["src/main/clojure" "src/main/resources"]}' > $@
-
-compile test repl: depends
-	mvn clojure:$@
-
-package: depends
-	mvn package
-
-uberjar_file := target/$(artifactId)-$(version)-jar-with-dependencies.jar
-
-assembly: $(uberjar_file)
-$(uberjar_file): depends
-	mvn package assembly:single
-
-native_image := target/$(artifactId)-$(version)
-native: assembly $(native_image)
-$(native_image):
-	native-image --initialize-at-build-time --report-unsupported-elements-at-runtime -jar $(uberjar_file) $@
-
-bb-uberscript: target/$(artifactId)-$(version).uber.clj
-target/$(artifactId)-$(version).uber.clj: $(src)
-	bb uberscript $@ -m $(artifactId).core
-
-bb-uberjar: target/$(artifactId)-$(version).uber.jar
-target/$(artifactId)-$(version).uber.jar: $(src)
-	bb uberjar $@ -m $(artifactId).core
-
-run: package
-	mvn clojure:run
-
-clean:
-	-mvn clean
-
-.PHONY: all depends compile test repl nrepl package assembly bb-uberscript bb-uberjar run clean
+# Local Variables:
+# mode: makefile-gmake
+# End:

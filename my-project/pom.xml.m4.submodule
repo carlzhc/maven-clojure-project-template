@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This file is generated automatically, do not modify. dnl
+define(`_dependency', `
+<dependency>
+<groupId>$1</groupId>
+<artifactId>$2</artifactId>
+ifelse(`$3', `<version>$3</version>', `dnl')
+ifelse(`$4',`<scope>$4</scope>', `dnl')
+</dependency>
+')dnl
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <name>_PARENT_NAME</name>
+    <groupId>_PARENT_GROUPID</groupId>
+    <artifactId>_PARENT_ARTIFACTID</artifactId>
+    <version>_PARENT_VERSION</version>
+  </parent>
+
+  <properties>
+    <revision>_VERSION</revision>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <project.url></project.url>
+    <java.version>17</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <maven.version.ignore>.+[-_.](alpha|Alpha|ALPHA|b|beta|Beta|BETA|rc|RC|M|EA)[-_.]?[0-9]*</maven.version.ignore>
+    <clojure.mainClass>translit(_ARTIFACTID, -, _).core</clojure.mainClass>
+    <mainClass>${clojure.mainClass}</mainClass>
+    <additionalClassPath></additionalClassPath>
+  </properties>
+
+  <groupId>_GROUPID</groupId>
+  <artifactId>_ARTIFACTID</artifactId>
+  <name>_NAME</name>
+  <version>${revision}</version>
+  <packaging>clojure</packaging>
+  <description></description>
+  <url>${project.url}</url>
+  <licenses>
+    <license>
+      <name>EPL-2.0 OR GPL-2.0-or-later WITH Classpath-exception-2.0</name>
+      <url>https://www.eclipse.org/legal/epl-2.0/</url>
+    </license>
+  </licenses>
+  <scm/>
+
+  <dependencies>
+    _dependency(org.clojure, clojure)
+dnl    _dependency(org.clojure, core.async)
+dnl    _dependency(org.clojure, core.cache)
+dnl    _dependency(org.clojure, core.logic)
+dnl    _dependency(org.clojure, core.memoize)
+dnl    _dependency(org.clojure, core.specs.alpha)
+dnl    _dependency(org.clojure, data.json)
+dnl    _dependency(org.clojure, data.priority-map)
+dnl    _dependency(org.clojure, data.xml)
+dnl    _dependency(org.clojure, test.check)
+dnl    _dependency(org.clojure, test.generative)
+dnl    _dependency(org.clojure, tools.logging)
+dnl    _dependency(org.clojure, tools.nrepl)
+dnl    _dependency(org.clojure, tools.reader)
+dnl    _dependency(org.clojure, tools.trace)
+  </dependencies>
+
+  <build>
+    <directory>target</directory>
+    <outputDirectory>target/classes</outputDirectory>
+
+    <plugins>
+      <!-- lock down plugins versions to avoid using Maven defaults -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
+        <configuration>
+          <generateBackupPoms>false</generateBackupPoms>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <argLine>
+            --illegal-access=permit
+          </argLine>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <argLine>
+            --illegal-access=permit
+          </argLine>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.4.1</version>
+        <executions>
+          <execution>
+            <id>enforce-maven</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>3.6.3</version>
+                </requireMavenVersion>
+                <requireJavaVersion>
+                  <version>[1.8.0)</version>
+                </requireJavaVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>com.theoryinpractise</groupId>
+        <artifactId>clojure-maven-plugin</artifactId>
+        <extensions>true</extensions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <mainClass>${clojure.mainClass}</mainClass>
+              <classpathPrefix>dependency/</classpathPrefix>
+              <classpathLayoutType>simple</classpathLayoutType>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-dependencies</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
+
+<!-- Local Variables: -->
+<!-- mode: nxml -->
+<!-- nxml-slash-auto-complete-flag: true -->
+<!-- End: -->

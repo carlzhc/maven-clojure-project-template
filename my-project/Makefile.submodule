@@ -1,0 +1,55 @@
+pom := pom.xml
+src := \
+$(pom) \
+bb.edn \
+
+
+all:
+	@echo "usage: $(MAKE) <pom|depends|compile|test|run|package|assembly|native|bb-uberjar|bb-uberscript|repl|nrepl|clean|app|clojure>"
+
+
+depends: $(src)
+
+pom: $(pom)
+$(pom): $(pom).m4 Makefile
+	m4 $(pom).m4 | /usr/bin/xmllint --format --output $@ -
+
+bb.edn:
+	echo '{:paths ["src/main/clojure" "src/main/resources"]}' > $@
+
+compile test repl: depends
+	mvn clojure:$@
+
+package: depends
+	mvn package
+
+uberjar_file := target/$(artifactId)-$(version)-jar-with-dependencies.jar
+
+assembly: $(uberjar_file)
+$(uberjar_file): depends
+	mvn package assembly:single
+
+native_image := target/$(artifactId)-$(version)
+native: assembly $(native_image)
+$(native_image):
+	native-image --initialize-at-build-time --report-unsupported-elements-at-runtime -jar $(uberjar_file) $@
+
+bb-uberscript: target/$(artifactId)-$(version).uber.clj
+target/$(artifactId)-$(version).uber.clj: $(src)
+	bb uberscript $@ -m $(artifactId).core
+
+bb-uberjar: target/$(artifactId)-$(version).uber.jar
+target/$(artifactId)-$(version).uber.jar: $(src)
+	bb uberjar $@ -m $(artifactId).core
+
+run: package
+	mvn clojure:run
+
+clean:
+	-mvn clean
+
+.PHONY: all depends compile test repl nrepl package assembly bb-uberscript bb-uberjar run clean
+
+# Local Variables:
+# mode: makefile
+# End:
