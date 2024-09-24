@@ -4,8 +4,8 @@ define(`_dependency', `
 <dependency>
 <groupId>$1</groupId>
 <artifactId>$2</artifactId>
-ifelse(`$3', `<version>$3</version>', `dnl')
-ifelse(`$4',`<scope>$4</scope>', `dnl')
+ifelse(`$3',,`dnl',`<version>$3</version>')
+ifelse(`$4',,`dnl',`<scope>$4</scope>')
 </dependency>
 ')dnl
 -->
