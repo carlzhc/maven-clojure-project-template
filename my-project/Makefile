@@ -6,10 +6,15 @@ artifactId_d := $(subst -,_,$(parent_artifactId))
 pom__macros := -D_GROUPID=$(parent_groupId) -D_NAME=$(parent_name) -D_VERSION=$(parent_version) -D_ARTIFACTID=$(parent_artifactId)
 pom := pom.xml
 
-all:
-	@echo "usage: $(MAKE) clean"
+all: $(pom) help
+help:
 	@echo "usage: $(MAKE) pom [parent_name=PROJECT] [parent_groupId=GROUP_ID] [parent_artifactId=ARTIFACT_ID] [parent_version=VERSION]"
 	@echo "usage: $(MAKE) submodule [name=PROJECT] [groupId=GROUP_ID] [artifactId=ARTIFACT_ID] [version=VERSION]"
+	@echo "usage: $(MAKE) check clean"
+
+check: $(pom)
+	mvn versions:display-plugin-updates
+	mvn versions:display-dependency-updates
 
 pom: $(pom)
 $(pom): $(pom).m4 Makefile
@@ -25,7 +30,7 @@ $(name)/$(pom).m4: $(pom).m4.submodule
 	   -D_ARTIFACTID=$(artifactId) $< >$@
 	cd $(@D) && make pom
 
-.PHONY: all pom submodule clean
+.PHONY: all clean help pom submodule
 
 # Local Variables:
 # mode: makefile-gmake

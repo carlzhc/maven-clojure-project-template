@@ -44,21 +44,21 @@ define(`_dependency', `
 
   <dependencyManagement>
     <dependencies>
-      _dependency(org.clojure, clojure, 1.8.0)
+      _dependency(org.clojure, clojure, 1.12.0)
       _dependency(org.clojure, core.async, 1.6.681)
-      _dependency(org.clojure, core.cache, 1.0.225)
-      _dependency(org.clojure, core.logic, 1.0.1)
-      _dependency(org.clojure, core.memoize, 1.0.257)
-      _dependency(org.clojure, core.specs.alpha, 0.2.62)
-      _dependency(org.clojure, data.json, 2.4.0)
-      _dependency(org.clojure, data.priority-map, 1.1.0)
+      _dependency(org.clojure, core.cache, 1.1.234)
+      _dependency(org.clojure, core.logic, 1.1.0)
+      _dependency(org.clojure, core.memoize, 1.1.266)
+      _dependency(org.clojure, core.specs.alpha, 0.4.74)
+      _dependency(org.clojure, data.json, 2.5.0)
+      _dependency(org.clojure, data.priority-map, 1.2.0)
       _dependency(org.clojure, data.xml, 0.0.8)
       _dependency(org.clojure, test.check, 1.1.1, test)
-      _dependency(org.clojure, test.generative, 1.0.0, test)
-      _dependency(org.clojure, tools.logging, 1.2.4)
+      _dependency(org.clojure, test.generative, 1.1.0, test)
+      _dependency(org.clojure, tools.logging, 1.3.0)
       _dependency(org.clojure, tools.nrepl, 0.2.13, test)
-      _dependency(org.clojure, tools.reader, 1.3.7)
-      _dependency(org.clojure, tools.trace, 0.7.11)
+      _dependency(org.clojure, tools.reader, 1.5.0)
+      _dependency(org.clojure, tools.trace, 0.8.0)
     </dependencies>
   </dependencyManagement>
 
@@ -66,74 +66,148 @@ define(`_dependency', `
     <directory>target</directory>
     <outputDirectory>target/classes</outputDirectory>
 
+    <!-- lock down plugins versions to avoid using Maven defaults -->
+    <plugins>
+      <plugin>
+        <!-- Clean up after the build. -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.4.0</version>
+      </plugin>
+
+      <plugin>
+        <!-- Compiles Java sources. -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
+      </plugin>
+
+      <plugin>
+        <!-- Run the JUnit integration tests in an isolated classloader. -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>3.5.0</version>
+        <configuration>
+          <argLine>
+            --illegal-access=permit
+          </argLine>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <!-- Copy the resources to the output directory for including in the JAR. -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.3.1</version>
+        <configuration>
+          <argLine>
+            --illegal-access=permit
+          </argLine>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <!-- Run the JUnit unit tests in an isolated classloader. -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.5.0</version>
+        <configuration>
+          <argLine>
+            --illegal-access=permit
+          </argLine>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <!-- Build a JAR from the current project. -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.4.2</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <mainClass>${clojure.mainClass}</mainClass>
+              <classpathPrefix>dependency/</classpathPrefix>
+              <classpathLayoutType>simple</classpathLayoutType>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <!-- Build an Uber-JAR from the current project, including dependencies. -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.6.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <!-- Dependency manipulation (copy, unpack) and analysis. -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.8.0</version>
+        <executions>
+          <execution>
+            <id>copy-dependencies</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <!-- Environmental constraint checking (Maven Version, JDK etc), User Custom Rule Execution. -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.5.0</version>
+        <executions>
+          <execution>
+            <id>enforce-maven</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>3.6.3</version>
+                </requireMavenVersion>
+                <requireJavaVersion>
+                  <version>[11.0.2,)</version>
+                </requireJavaVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <!-- Manage versions of your project, its modules, dependencies and plugins. -->
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
+        <version>2.17.1</version>
+        <configuration>
+          <generateBackupPoms>false</generateBackupPoms>
+        </configuration>
+      </plugin>
+    </plugins>
+
     <pluginManagement>
-      <!-- lock down plugins versions to avoid using Maven defaults -->
       <plugins>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>versions-maven-plugin</artifactId>
-          <version>2.16.2</version>
-          <configuration>
-            <generateBackupPoms>false</generateBackupPoms>
-          </configuration>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.11.0</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.2.2</version>
-          <configuration>
-            <argLine>
-              --illegal-access=permit
-            </argLine>
-          </configuration>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-failsafe-plugin</artifactId>
-          <version>3.2.2</version>
-          <configuration>
-            <argLine>
-              --illegal-access=permit
-            </argLine>
-          </configuration>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-enforcer-plugin</artifactId>
-          <version>3.4.1</version>
-          <executions>
-            <execution>
-              <id>enforce-maven</id>
-              <goals>
-                <goal>enforce</goal>
-              </goals>
-              <configuration>
-                <rules>
-                  <requireMavenVersion>
-                    <version>3.3</version>
-                  </requireMavenVersion>
-                  <requireJavaVersion>
-                    <version>[11.0.2,)</version>
-                  </requireJavaVersion>
-                </rules>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-
         <plugin>
           <groupId>com.theoryinpractise</groupId>
           <artifactId>clojure-maven-plugin</artifactId>
-          <version>1.9.2</version>
+          <version>1.9.3</version>
           <extensions>true</extensions>
           <executions>
             <execution>
@@ -148,51 +222,6 @@ define(`_dependency', `
               <phase>test</phase>
               <goals>
                 <goal>test</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>3.3.0</version>
-          <configuration>
-            <archive>
-              <manifest>
-                <addClasspath>true</addClasspath>
-                <mainClass>${clojure.mainClass}</mainClass>
-                <classpathPrefix>dependency/</classpathPrefix>
-                <classpathLayoutType>simple</classpathLayoutType>
-              </manifest>
-            </archive>
-          </configuration>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-dependency-plugin</artifactId>
-          <version>3.6.1</version>
-          <executions>
-            <execution>
-              <id>copy-dependencies</id>
-              <phase>package</phase>
-              <goals>
-                <goal>copy-dependencies</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-shade-plugin</artifactId>
-          <version>3.6.0</version>
-          <executions>
-            <execution>
-              <phase>package</phase>
-              <goals>
-                <goal>shade</goal>
               </goals>
             </execution>
           </executions>
