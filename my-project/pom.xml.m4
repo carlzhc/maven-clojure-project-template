@@ -12,11 +12,11 @@ define(`_dependency', `
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>_GROUPID</groupId>
-  <artifactId>_ARTIFACTID</artifactId>
-  <version>${revision}</version>
+  <groupId>_PARENT_GROUPID</groupId>
+  <artifactId>_PARENT_ARTIFACTID</artifactId>
+  <version>_PARENT_VERSION</version>
+  <name>_PARENT_NAME</name>
   <packaging>pom</packaging>
-  <name>_NAME</name>
   <description></description>
   <url></url>
   <licenses>
@@ -32,7 +32,6 @@ define(`_dependency', `
   </modules>
 
   <properties>
-    <revision>_VERSION</revision>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <java.version>17</java.version>

@@ -1,9 +1,16 @@
-parent_name ?= _PARENT-NAME
-parent_groupId ?= _PARENT-GROUPID
-parent_artifactId ?= _PARENT-ARTIFACTID
-parent_version ?= _PARENT-VERSION
+parent_name ?= PARENT_NAME
+parent_groupId ?= PARENT_GROUPID
+parent_artifactId ?= PARENT_ARTIFACTID
+parent_version ?= PARENT_VERSION
 artifactId_d := $(subst -,_,$(parent_artifactId))
-pom__macros := -D_GROUPID=$(parent_groupId) -D_NAME=$(parent_name) -D_VERSION=$(parent_version) -D_ARTIFACTID=$(parent_artifactId)
+parent_pom_macros := -D_PARENT_GROUPID=$(parent_groupId) -D_PARENT_NAME=$(parent_name) -D_PARENT_VERSION=$(parent_version) -D_PARENT_ARTIFACTID=$(parent_artifactId)
+
+groupId ?= GROUPID
+name ?= NAME
+version ?= VERSION
+artifactId ?= ARTIFACTID
+pom_macros := -D_GROUPID=$(groupId) -D_NAME=$(name) -D_VERSION=$(version) -D_ARTIFACTID=$(artifactId)
+
 pom := pom.xml
 
 all: $(pom) help
@@ -18,17 +25,17 @@ check: $(pom)
 
 pom: $(pom)
 $(pom): $(pom).m4 Makefile
-	m4 $(pom_macros) $(pom).m4 | /usr/bin/xmllint --format --output $@ -
+	m4 $(parent_pom_macros) $(pom).m4 | /usr/bin/xmllint --format --output $@ -
 
-submodule: $(pom) $(name)/$(pom).m4
-$(name)/$(pom).m4: $(pom).m4.submodule
+submodule: $(name)/$(pom).m4
+$(name)/$(pom).m4: # should not depends on anything to avoid overwriting
 	[[ "$(@D)" ]] && [[ "$(@D)" != /* ]]
 	mkdir -p $(@D)/src/{main,test}/clojure
 	cp -f Makefile.submodule $(@D)/Makefile
-	m4 -D_PARENT_GROUPID=$(parent_groupId) -D_PARENT_NAME=$(parent_name) -D_PARENT_ARTIFACTID=$(parent_artifactId) \
-	   -D_PARENT_VERSION=$(parent_version) -D_GROUPID=$(groupId) -D_NAME=$(name) -D_VERSION=$(version) \
-	   -D_ARTIFACTID=$(artifactId) $< >$@
+	m4 $(parent_pom_macros) $(pom_macros)  $(pom).m4.submodule >$@
 	cd $(@D) && make pom
+	# Add submodule in parent
+	$(MAKE) --always-make $(pom)
 
 .PHONY: all clean help pom submodule
 
