@@ -5,7 +5,7 @@ bb.edn \
 
 
 all:
-	@echo "usage: $(MAKE) <pom|depends|compile|test|run|package|assembly|native|bb-uberjar|bb-uberscript|repl|nrepl|clean|app|clojure>"
+	@echo "Usage: $(MAKE) <pom|check|compile|clean|depends|run|test|package|assembly|native|bb-uberjar|bb-uberscript>"
 
 
 depends: $(src)
@@ -48,7 +48,7 @@ run: package
 clean:
 	-mvn clean
 
-.PHONY: all depends compile test repl nrepl package assembly bb-uberscript bb-uberjar run clean
+.PHONY: all depends check compile test package assembly bb-uberscript bb-uberjar run clean
 
 # Local Variables:
 # mode: makefile

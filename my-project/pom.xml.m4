@@ -1,21 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- This file is generated automatically, do not modify. dnl
+divert(`-1')
 define(`_dependency', `
 <dependency>
 <groupId>$1</groupId>
 <artifactId>$2</artifactId>
-<version>$3</version>
-<scope>ifelse(`$4',,`compile',`$4')</scope>
+ifelse(`$3',,`dnl',`<version>$3</version>')
+ifelse(`$4',,`dnl',`<scope>$4</scope>')
 </dependency>
-')dnl
+')
+
+define(`_plugin', `
+<plugin>
+<groupId>ifelse(`$1',,org.apache.maven.plugins,`$1')</groupId>
+<artifactId>$2</artifactId>
+ifelse(`$3',,`dnl',`<version>$3</version>')
+ifelse(`$4',,`dnl',`$4')
+</plugin>
+')
+divert`'dnl
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>_PARENT_GROUPID</groupId>
-  <artifactId>_PARENT_ARTIFACTID</artifactId>
-  <version>_PARENT_VERSION</version>
-  <name>_PARENT_NAME</name>
+  <groupId>_GROUPID</groupId>
+  <artifactId>_ARTIFACTID</artifactId>
+  <version>_VERSION</version>
+  <name>_NAME</name>
   <packaging>pom</packaging>
   <description></description>
   <url></url>
@@ -28,7 +39,7 @@ define(`_dependency', `
   <scm/>
 
   <modules>
-    esyscmd(`find . -mindepth 2 -maxdepth 2 -type f -name pom.xml -printf "<module>%P\n" | sed "s#/.*#</module>#"')dnl
+    esyscmd(`find * -mindepth 1 -maxdepth 1 -type f -name pom.xml -printf "<module>%h</module>\n"')
   </modules>
 
   <properties>

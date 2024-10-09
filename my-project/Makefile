@@ -1,43 +1,59 @@
+# Update project information in Makefile.conf.m4 file
+-include Makefile.conf
+
 parent_name ?= PARENT_NAME
 parent_groupId ?= PARENT_GROUPID
 parent_artifactId ?= PARENT_ARTIFACTID
 parent_version ?= PARENT_VERSION
-artifactId_d := $(subst -,_,$(parent_artifactId))
-parent_pom_macros := -D_PARENT_GROUPID=$(parent_groupId) -D_PARENT_NAME=$(parent_name) -D_PARENT_VERSION=$(parent_version) -D_PARENT_ARTIFACTID=$(parent_artifactId)
 
-groupId ?= GROUPID
-name ?= NAME
-version ?= VERSION
-artifactId ?= ARTIFACTID
-pom_macros := -D_GROUPID=$(groupId) -D_NAME=$(name) -D_VERSION=$(version) -D_ARTIFACTID=$(artifactId)
+groupId ?= $(parent_groupId)
+name ?= $(artifactId)
+version  ?= 0.0.1-alpha
 
+pom_macros := -D_GROUPID=$(parent_groupId) -D_ARTIFACTID=$(parent_artifactId) -D_NAME=$(parent_name) -D_VERSION=$(parent_version)
 pom := pom.xml
+conf := Makefile.conf
 
 all: $(pom) help
 help:
-	@echo "usage: $(MAKE) pom [parent_name=PROJECT] [parent_groupId=GROUP_ID] [parent_artifactId=ARTIFACT_ID] [parent_version=VERSION]"
-	@echo "usage: $(MAKE) submodule [name=PROJECT] [groupId=GROUP_ID] [artifactId=ARTIFACT_ID] [version=VERSION]"
-	@echo "usage: $(MAKE) check clean"
+	@echo "Usage: $(MAKE) pom check clean"
+	@echo "usage: $(MAKE) config parent_name=PROJECT parent_groupId=GROUP_ID parent_artifactId=ARTIFACT_ID parent_version=VERSION"
+	@echo "usage: $(MAKE) submodule artifactId=ARTIFACT_ID [name=PROJECT] [groupId=GROUP_ID] [version=VERSION]"
+
 
 check: $(pom)
 	mvn versions:display-plugin-updates
 	mvn versions:display-dependency-updates
 
 pom: $(pom)
-$(pom): $(pom).m4 Makefile
-	m4 $(parent_pom_macros) $(pom).m4 | /usr/bin/xmllint --format --output $@ -
+$(pom): $(pom).m4 $(conf)
+	m4 $(pom_macros) $< | /usr/bin/xmllint --format --output $@ -
 
-submodule: $(name)/$(pom).m4
+config: $(conf).m4
+	m4 $(pom_macros) $< | tee $(conf)
+
+$(conf): $(conf).m4 Makefile
+	m4 $(pom_macros) $< > $@
+
+submodule: $(pom) $(name)/$(pom).m4
 $(name)/$(pom).m4: # should not depends on anything to avoid overwriting
 	[[ "$(@D)" ]] && [[ "$(@D)" != /* ]]
 	mkdir -p $(@D)/src/{main,test}/clojure
 	cp -f Makefile.submodule $(@D)/Makefile
-	m4 $(parent_pom_macros) $(pom_macros)  $(pom).m4.submodule >$@
+	m4 -D_PARENT_GROUPID=$(parent_groupId) -D_PARENT_ARTIFACTID=$(parent_artifactId) -D_PARENT_NAME=$(parent_name) -D_PARENT_VERSION=$(parent_version) \
+	   -D_GROUPID=$(groupId) -D_ARTIFACTID=$(artifactId) -D_NAME=$(name) -D_VERSION=$(version) \
+	   $(pom).m4.submodule | /usr/bin/xmllint --format --output $@ -
 	cd $(@D) && make pom
-	# Add submodule in parent
+	@# Add submodule in parent
 	$(MAKE) --always-make $(pom)
 
-.PHONY: all clean help pom submodule
+clean:
+	-rm -f *~ *.log
+
+distclean: clean
+	-rm -f $(pom) $(conf)
+
+.PHONY: all clean config distclean help pom submodule
 
 # Local Variables:
 # mode: makefile-gmake
