@@ -96,7 +96,7 @@ divert`'dnl
         <!-- Run the JUnit integration tests in an isolated classloader. -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <version>3.5.0</version>
+        <version>3.5.1</version>
         <configuration>
           <argLine>
             --illegal-access=permit
@@ -120,7 +120,7 @@ divert`'dnl
         <!-- Run the JUnit unit tests in an isolated classloader. -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.5.0</version>
+        <version>3.5.1</version>
         <configuration>
           <argLine>
             --illegal-access=permit
