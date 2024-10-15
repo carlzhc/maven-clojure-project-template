@@ -27,7 +27,7 @@ check: $(pom)
 
 pom: $(pom)
 $(pom): $(pom).m4 $(conf)
-	m4 $(pom_macros) $< | /usr/bin/xmllint --format --output $@ -
+	m4 $(pom_macros) $< | xmllint --format --output $@ -
 
 config: $(conf).m4
 	m4 $(pom_macros) $< | tee $(conf)
@@ -42,7 +42,7 @@ $(name)/$(pom).m4: # should not depends on anything to avoid overwriting
 	cp -f Makefile.submodule $(@D)/Makefile
 	m4 -D_PARENT_GROUPID=$(parent_groupId) -D_PARENT_ARTIFACTID=$(parent_artifactId) -D_PARENT_NAME=$(parent_name) -D_PARENT_VERSION=$(parent_version) \
 	   -D_GROUPID=$(groupId) -D_ARTIFACTID=$(artifactId) -D_NAME=$(name) -D_VERSION=$(version) \
-	   $(pom).m4.submodule | /usr/bin/xmllint --format --output $@ -
+	   $(pom).m4.submodule | xmllint --format --output $@ -
 	cd $(@D) && make pom
 	@# Add submodule in parent
 	$(MAKE) --always-make $(pom)

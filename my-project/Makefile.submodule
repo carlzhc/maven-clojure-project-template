@@ -3,6 +3,8 @@ src := \
 $(pom) \
 bb.edn \
 
+mvn := mvn
+export MAVEN_OPTS := -Djansi.force=true -Dstyle.color=always
 
 all:
 	@echo "Usage: $(MAKE) <pom|check|compile|clean|depends|run|test|package|assembly|native|bb-uberjar|bb-uberscript>"
@@ -12,22 +14,22 @@ depends: $(src)
 
 pom: $(pom)
 $(pom): $(pom).m4 Makefile
-	m4 $(pom).m4 | /usr/bin/xmllint --format --output $@ -
+	m4 $(pom).m4 | xmllint --format --output $@ -
 
 bb.edn:
 	echo '{:paths ["src/main/clojure" "src/main/resources"]}' > $@
 
 compile test repl: depends
-	mvn clojure:$@
+	$(mvn) clojure:$@
 
 package: depends
-	mvn package
+	$(mvn) package
 
 uberjar_file := target/$(artifactId)-$(version)-jar-with-dependencies.jar
 
 assembly: $(uberjar_file)
 $(uberjar_file): depends
-	mvn package assembly:single
+	$(mvn) package assembly:single
 
 native_image := target/$(artifactId)-$(version)
 native: assembly $(native_image)
@@ -43,10 +45,10 @@ target/$(artifactId)-$(version).uber.jar: $(src)
 	bb uberjar $@ -m $(artifactId).core
 
 run: package
-	mvn clojure:run
+	$(mvn) clojure:run
 
 clean:
-	-mvn clean
+	-$(mvn) clean
 
 .PHONY: all depends check compile test package assembly bb-uberscript bb-uberjar run clean
 

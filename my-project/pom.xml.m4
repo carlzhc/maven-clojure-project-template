@@ -220,6 +220,14 @@ divert`'dnl
           <version>1.9.3</version>
           <extensions>true</extensions>
           <executions>
+            <!--
+                <execution>
+                <id>default-test</id>
+                <goals>
+                <goal>test</goal>
+                </goals>
+                </execution>
+            -->
             <execution>
               <id>compile-clojure</id>
               <phase>compile</phase>
