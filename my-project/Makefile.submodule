@@ -47,8 +47,9 @@ target/$(artifactId)-$(version).uber.jar: $(src)
 run: package
 	$(mvn) clojure:run
 
-clean:
+clean: $(pom)
 	-$(mvn) clean
+	-rm -f $(pom)
 
 .PHONY: all depends check compile test package assembly bb-uberscript bb-uberjar run clean
 
