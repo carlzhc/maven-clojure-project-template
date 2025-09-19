@@ -1,3 +1,6 @@
+SHELL := /bin/bash
+-include Makefile.conf
+
 pom := pom.xml
 src := \
 $(pom) \
@@ -7,7 +10,7 @@ mvn := mvn
 export MAVEN_OPTS := -Djansi.force=true -Dstyle.color=always
 
 all:
-	@echo "Usage: $(MAKE) <pom|check|compile|clean|depends|run|test|package|assembly|native|bb-uberjar|bb-uberscript>"
+	@echo "Usage: $(MAKE) <pom|check|compile|clean|depends|run|test|package|uberjar|native|bb-uberjar|bb-uberscript>"
 
 
 depends: $(src)
@@ -25,14 +28,14 @@ compile test repl: depends
 package: depends
 	$(mvn) package
 
-uberjar_file := target/$(artifactId)-$(version)-jar-with-dependencies.jar
+uberjar_file := target/$(artifactId)-$(version).jar
 
-assembly: $(uberjar_file)
+uberjar: $(uberjar_file)
 $(uberjar_file): depends
-	$(mvn) package assembly:single
+	$(mvn) package shade:shade
 
 native_image := target/$(artifactId)-$(version)
-native: assembly $(native_image)
+native: uberjar $(native_image)
 $(native_image):
 	native-image --initialize-at-build-time --report-unsupported-elements-at-runtime -jar $(uberjar_file) $@
 

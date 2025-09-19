@@ -1,3 +1,6 @@
+# Use bash
+SHELL := /bin/bash
+
 # Update project information in Makefile.conf.m4 file
 -include Makefile.conf
 
@@ -43,6 +46,7 @@ $(name)/$(pom).m4: # should not depends on anything to avoid overwriting
 	m4 -D_PARENT_GROUPID=$(parent_groupId) -D_PARENT_ARTIFACTID=$(parent_artifactId) -D_PARENT_NAME=$(parent_name) -D_PARENT_VERSION=$(parent_version) \
 	   -D_GROUPID=$(groupId) -D_ARTIFACTID=$(artifactId) -D_NAME=$(name) -D_VERSION=$(version) \
 	   $(pom).m4.submodule | xmllint --format --output $@ -
+	printf "%s\n" "# -*- mode: Makefile -*-" "groupId ?= $(groupId)" "artifactId ?= $(artifactId)" "name ?= $(name)" "version ?= $(version)" > $(name)/Makefile.conf
 	cd $(@D) && make pom
 	@# Add submodule in parent
 	$(MAKE) --always-make $(pom)

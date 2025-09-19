@@ -8,7 +8,7 @@
     <version>PARENT_VERSION</version>
   </parent>
   <properties>
-    <revision>1.2.2</revision>
+    <revision>1.12.2</revision>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project.url/>
@@ -20,7 +20,7 @@
     <mainClass>${clojure.mainClass}</mainClass>
     <additionalClassPath/>
   </properties>
-  <groupId>PARENT_GROUPID</groupId>
+  <groupId>carlzhc</groupId>
   <artifactId>clojure-standalone</artifactId>
   <name>clojure-standalone</name>
   <version>${revision}</version>
@@ -39,10 +39,6 @@
       <groupId>org.clojure</groupId>
       <artifactId>clojure</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.clojure</groupId>
-      <artifactId>data.json</artifactId>
-    </dependency>
   </dependencies>
   <build>
     <directory>target</directory>
@@ -52,10 +48,6 @@
         <groupId>com.theoryinpractise</groupId>
         <artifactId>clojure-maven-plugin</artifactId>
         <extensions>true</extensions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
