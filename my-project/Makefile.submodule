@@ -31,13 +31,15 @@ package: depends
 uberjar_file := target/$(artifactId)-$(version).jar
 
 uberjar: $(uberjar_file)
-$(uberjar_file): depends
+$(uberjar_file): | depends
 	$(mvn) package shade:shade
 
 native_image := target/$(artifactId)-$(version)
-native: uberjar $(native_image)
-$(native_image):
-	native-image --initialize-at-build-time --report-unsupported-elements-at-runtime -jar $(uberjar_file) $@
+native: $(native_image)
+$(native_image): $(uberjar_file)
+	java -agentlib:native-image-agent=config-output-dir=resources -jar $< -e true
+	start native-image.cmd -jar $(uberjar_file) -o $@ --initialize-at-build-time --report-unsupported-elements-at-runtime --no-fallback \
+	    -H:ConfigurationFileDirectories=resources --enable-preview -march=compatibility -O1
 
 bb-uberscript: target/$(artifactId)-$(version).uber.clj
 target/$(artifactId)-$(version).uber.clj: $(src)
