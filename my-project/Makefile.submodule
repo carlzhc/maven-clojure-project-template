@@ -54,7 +54,9 @@ run: package
 
 clean: $(pom)
 	-$(mvn) clean
-	-rm -f $(pom)
+
+distclean: clean
+	-git clean -dfx
 
 .PHONY: all depends check compile test package assembly bb-uberscript bb-uberjar run clean
 

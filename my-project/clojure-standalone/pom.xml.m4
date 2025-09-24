@@ -39,6 +39,18 @@
       <groupId>org.clojure</groupId>
       <artifactId>clojure</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>data.json</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>data.xml</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>tools.logging</artifactId>
+    </dependency>
   </dependencies>
   <build>
     <directory>target</directory>
@@ -48,6 +60,33 @@
         <groupId>com.theoryinpractise</groupId>
         <artifactId>clojure-maven-plugin</artifactId>
         <extensions>true</extensions>
+      </plugin>
+      <plugin>
+        <!-- This snippet configures a special resource transformer which
+             sets the Main-Class entry in the MANIFEST.MF of the shaded
+             JAR. Other entries can be added to the MANIFEST.MF as well via
+             key-value pairs in the <manifestEntries> section:
+        -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <manifestEntries>
+                    <Main-Class>${clojure.mainClass}</Main-Class>
+                    <!-- <Build-Number>123</Build-Number> -->
+                  </manifestEntries>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
