@@ -1,25 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- This file is generated automatically, do not modify. dnl
-divert(`-1')
-define(`_dependency', `
-<dependency>
-<groupId>$1</groupId>
-<artifactId>$2</artifactId>
-ifelse(`$3',,`dnl',`<version>$3</version>')
-ifelse(`$4',,`dnl',`<scope>$4</scope>')
-</dependency>
-')
-
-define(`_plugin', `
-<plugin>
-<groupId>ifelse(`$1',,org.apache.maven.plugins,`$1')</groupId>
-<artifactId>$2</artifactId>
-ifelse(`$3',,`dnl',`<version>$3</version>')
-ifelse(`$4',,`dnl',`$4')
-</plugin>
-')
-divert`'dnl
--->
+<!-- This file is generated automatically, do not modify. include(`macros.m4')-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
@@ -55,7 +35,7 @@ divert`'dnl
 
   <dependencyManagement>
     <dependencies>
-      _dependency(org.clojure, clojure, 1.12.2)
+      _dependency(org.clojure, clojure, 1.12.3)
       _dependency(org.clojure, core.async, 1.8.741)
       _dependency(org.clojure, core.cache, 1.1.234)
       _dependency(org.clojure, core.logic, 1.1.0)
@@ -79,93 +59,142 @@ divert`'dnl
 
     <!-- lock down plugins versions to avoid using Maven defaults -->
     <plugins>
-      <plugin>
-        <!-- Clean up after the build. -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-clean-plugin</artifactId>
-        <version>3.5.0</version>
-      </plugin>
+      <!-- Responsible for removing the target directory and any other
+           configured output directories, ensuring a clean build. -->
+      _plugin(, maven-clean-plugin, 3.5.0)
 
-      <plugin>
-        <!-- Compiles Java sources. -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.14.0</version>
-      </plugin>
+      <!-- Compiles the project's source code. -->
+      _plugin(, maven-compiler-plugin, 3.14.1)
 
-      <plugin>
-        <!-- Run the JUnit integration tests in an isolated classloader. -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <version>3.5.3</version>
-        <configuration>
-          <argLine>
-            --illegal-access=permit
-          </argLine>
-        </configuration>
-      </plugin>
+      <!-- Deploys the project artifact to a remote repository, making it
+           available for other developers or continuous integration
+           systems. -->
+      _plugin(, maven-deploy-plugin, 3.1.4)
 
-      <plugin>
-        <!-- Copy the resources to the output directory for including in the JAR. -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>3.3.1</version>
-        <configuration>
-          <argLine>
-            --illegal-access=permit
-          </argLine>
-        </configuration>
-      </plugin>
+      <!-- Environmental constraint checking (Maven Version, JDK etc), User
+           Custom Rule Execution. -->
+      _plugin(, maven-enforcer-plugin, 3.6.2, `
+      <executions>
+        <execution>
+          <id>enforce-maven</id>
+          <goals>
+            <goal>enforce</goal>
+          </goals>
+          <configuration>
+            <rules>
+              <requireMavenVersion>
+                <version>3.6.3</version>
+              </requireMavenVersion>
+              <requireJavaVersion>
+                <version>[8.0.0,)</version>
+              </requireJavaVersion>
+            </rules>
+          </configuration>
+        </execution>
+      </executions>
+      ')
 
-      <plugin>
-        <!-- Run the JUnit unit tests in an isolated classloader. -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.5.3</version>
-        <configuration>
-          <argLine>
-            --illegal-access=permit
-          </argLine>
-        </configuration>
-      </plugin>
+      <!-- Run the JUnit integration tests in an isolated classloader. -->
+      _plugin(, maven-failsafe-plugin, 3.5.4, `
+      <configuration>
+        <argLine>
+          --illegal-access=permit
+        </argLine>
+      </configuration>
+      <executions>
+        <execution>
+          <id>default-test</id>
+          <phase>none</phase>
+        </execution>
+      </executions>
+      ')
+    
+      <!-- Installs the project artifact (e.g., JAR, WAR) into the local Maven
+           repository for use by other local projects. -->
+      _plugin(, maven-install-plugin, 3.1.4)
 
-      <plugin>
-        <!-- Build a JAR from the current project. -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>3.4.2</version>
-        <configuration>
-          <archive>
-            <manifest>
-              <addClasspath>true</addClasspath>
-              <mainClass>${clojure.mainClass}</mainClass>
-              <classpathPrefix>dependency/</classpathPrefix>
-              <classpathLayoutType>simple</classpathLayoutType>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
+      <!-- Creates a Java Archive (JAR) file from the compiled project classes
+           and resources. -->
+      _plugin(, maven-jar-plugin, 3.4.2)
 
-      <plugin>
+      <!-- Handles the copying of project resources (e.g., configuration files,
+           images) from the source directory to the build output directory. -->
+      _plugin(, maven-resources-plugin, 3.3.1)
+
+      <!-- Generates a project website, including documentation, reports, and
+           other project information. -->
+      _plugin(, maven-site-plugin, 3.21.0)
+
+      <!-- Executes unit tests during the build process and generates test reports. -->
+      _plugin(, maven-surefire-plugin, 3.5.4, `
+      <configuration>
+        <argLine>
+          --illegal-access=permit
+        </argLine>
+      </configuration>
+      <executions>
+        <execution>
+          <id>default-test</id>
+          <phase>none</phase>
+        </execution>
+      </executions>
+      ')
+
+      <!-- Manage versions of your project, its modules, dependencies and plugins. -->
+      _plugin(, versions-maven-plugin, 2.19.0, `
+      <configuration>
+        <generateBackupPoms>false</generateBackupPoms>
+      </configuration>
+      ')
+    </plugins>
+
+    <!-- project plugins -->
+    <pluginManagement>
+      <plugins>
+        _plugin(, maven-source-plugin, 3.3.1, `
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+        ')
+
+        _plugin(, maven-javadoc-plugin, 3.12.0, `
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+        ')
+
+
         <!-- Build an Uber-JAR from the current project, including dependencies. -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.6.0</version>
+        _plugin(, maven-shade-plugin, 3.6.1, `
         <executions>
           <execution>
             <phase>package</phase>
             <goals>
               <goal>shade</goal>
             </goals>
+            <configuration>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>${mainClass}</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
           </execution>
         </executions>
-      </plugin>
+        ')
 
-      <plugin>
         <!-- Dependency manipulation (copy, unpack) and analysis. -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>3.8.1</version>
+        _plugin(, maven-dependency-plugin, 3.9.0, `
         <executions>
           <execution>
             <id>copy-dependencies</id>
@@ -175,76 +204,25 @@ divert`'dnl
             </goals>
           </execution>
         </executions>
-      </plugin>
+        <configuration>
+          <source>8</source>
+          <target>8</target>
+        </configuration>
+        ')
 
-      <plugin>
-        <!-- Environmental constraint checking (Maven Version, JDK etc), User Custom Rule Execution. -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.6.1</version>
+
+        _plugin(com.theoryinpractise, clojure-maven-plugin, 1.9.3, `
+        <extensions>true</extensions>
         <executions>
           <execution>
-            <id>enforce-maven</id>
+            <id>default-test</id>
             <goals>
-              <goal>enforce</goal>
+              <goal>test</goal>
             </goals>
-            <configuration>
-              <rules>
-                <requireMavenVersion>
-                  <version>3.6.3</version>
-                </requireMavenVersion>
-                <requireJavaVersion>
-                  <version>[11.0.2,)</version>
-                </requireJavaVersion>
-              </rules>
-            </configuration>
           </execution>
         </executions>
-      </plugin>
+        ')
 
-      <plugin>
-        <!-- Manage versions of your project, its modules, dependencies and plugins. -->
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>versions-maven-plugin</artifactId>
-        <version>2.19.0</version>
-        <configuration>
-          <generateBackupPoms>false</generateBackupPoms>
-        </configuration>
-      </plugin>
-    </plugins>
-
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>com.theoryinpractise</groupId>
-          <artifactId>clojure-maven-plugin</artifactId>
-          <version>1.9.3</version>
-          <extensions>true</extensions>
-          <executions>
-            <!--
-                <execution>
-                <id>default-test</id>
-                <goals>
-                <goal>test</goal>
-                </goals>
-                </execution>
-            -->
-            <execution>
-              <id>compile-clojure</id>
-              <phase>compile</phase>
-              <goals>
-                <goal>compile</goal>
-              </goals>
-            </execution>
-            <execution>
-              <id>test</id>
-              <phase>test</phase>
-              <goals>
-                <goal>test</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
       </plugins>
     </pluginManagement>
   </build>

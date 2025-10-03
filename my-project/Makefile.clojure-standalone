@@ -1,0 +1,19 @@
+# -*- mode: makefile -*-
+
+
+dest=clojure-standalone
+version=1.12.3
+
+all: clean test
+
+build: $(dest)/target/$(dest)-$(version).jar
+$(dest)/target/$(dest)-$(version).jar:
+	make submodule  artifactId=clojure-standalone version=$(version)
+	sed -i -e 's#<mainClass>.*</mainClass>#<mainClass>$${clojure.mainClass}</mainClass>#' $(dest)/pom.xml.m4
+	make -C $(dest) package
+
+test: $(dest)/target/$(dest)-$(version).jar 
+	java -jar $(dest)/target/$(dest)-$(version).jar --eval 1
+
+clean:
+	-rm -rf $(dest)

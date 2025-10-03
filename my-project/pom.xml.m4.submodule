@@ -1,32 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- This file is generated automatically, do not modify. dnl
-divert(`-1')
-define(`_dependency', `
-<dependency>
-<groupId>$1</groupId>
-<artifactId>$2</artifactId>
-ifelse(`$3',,`dnl',`<version>$3</version>')
-ifelse(`$4',,`dnl',`<scope>$4</scope>')
-</dependency>
-')
-
-define(`_plugin', `
-<plugin>
-<groupId>ifelse(`$1',,org.apache.maven.plugins,`$1')</groupId>
-<artifactId>$2</artifactId>
-ifelse(`$3',,`dnl',`<version>$3</version>')
-ifelse(`$4',,`dnl',`$4')
-</plugin>
-')
-divert`'dnl
+`include(`macros.m4')'dnl
+changequote(`<!-'`-[[-'`->',`<!-'`-]]-'`->')dnl
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>_PARENT_GROUPID</groupId>
-    <artifactId>_PARENT_ARTIFACTID</artifactId>
-    <version>_PARENT_VERSION</version>
+    <groupId>_SUPER_GROUPID</groupId>
+    <artifactId>_SUPER_ARTIFACTID</artifactId>
+    <version>_SUPER_VERSION</version>
   </parent>
 
   <properties>
@@ -34,12 +17,12 @@ divert`'dnl
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project.url></project.url>
-    <java.version>17</java.version>
+    <java.version>8</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <maven.version.ignore>.+[-_.](alpha|Alpha|ALPHA|b|beta|Beta|BETA|rc|RC|M|EA)[-_.]?[0-9]*</maven.version.ignore>
-    <clojure.mainClass>translit(_ARTIFACTID, -, _).core</clojure.mainClass>
-    <mainClass>${clojure.mainClass}</mainClass>
+    <clojure.mainClass>clojure.main</clojure.mainClass>
+    <mainClass>translit(_ARTIFACTID, -, _).core</mainClass>
     <additionalClassPath></additionalClassPath>
   </properties>
 
@@ -58,22 +41,23 @@ divert`'dnl
   </licenses>
   <scm/>
 
+  <!--[[-->
   <dependencies>
     _dependency(org.clojure, clojure)
-dnl    _dependency(org.clojure, core.async)
-dnl    _dependency(org.clojure, core.cache)
-dnl    _dependency(org.clojure, core.logic)
-dnl    _dependency(org.clojure, core.memoize)
-dnl    _dependency(org.clojure, core.specs.alpha)
-dnl    _dependency(org.clojure, data.json)
-dnl    _dependency(org.clojure, data.priority-map)
-dnl    _dependency(org.clojure, data.xml)
-dnl    _dependency(org.clojure, test.check)
-dnl    _dependency(org.clojure, test.generative)
-dnl    _dependency(org.clojure, tools.logging)
-dnl    _dependency(org.clojure, tools.nrepl)
-dnl    _dependency(org.clojure, tools.reader)
-dnl    _dependency(org.clojure, tools.trace)
+dnl _dependency(org.clojure, core.async)
+dnl _dependency(org.clojure, core.cache)
+dnl _dependency(org.clojure, core.logic)
+dnl _dependency(org.clojure, core.memoize)
+dnl _dependency(org.clojure, core.specs.alpha)
+dnl _dependency(org.clojure, data.json)
+dnl _dependency(org.clojure, data.priority-map)
+dnl _dependency(org.clojure, data.xml)
+dnl _dependency(org.clojure, test.check)
+dnl _dependency(org.clojure, test.generative)
+dnl _dependency(org.clojure, tools.logging)
+dnl _dependency(org.clojure, tools.nrepl)
+dnl _dependency(org.clojure, tools.reader)
+dnl _dependency(org.clojure, tools.trace)
   </dependencies>
 
   <build>
@@ -81,14 +65,30 @@ dnl    _dependency(org.clojure, tools.trace)
     <outputDirectory>target/classes</outputDirectory>
 
     <plugins>
-      <plugin>
-        <groupId>com.theoryinpractise</groupId>
-        <artifactId>clojure-maven-plugin</artifactId>
-        <extensions>true</extensions>
-      </plugin>
+      _plugin(, maven-dependency-plugin)
+      _plugin(, maven-compiler-plugin)
+      _plugin(, maven-jar-plugin)
+      _plugin(, maven-shade-plugin, , `
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>${mainClass}</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      ')
+      _plugin(com.theoryinpractise, clojure-maven-plugin)
     </plugins>
   </build>
-
+  <!--]]-->
 </project>
 
 <!-- Local Variables: -->
