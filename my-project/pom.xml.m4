@@ -46,6 +46,7 @@
       _dependency(org.clojure, data.xml, 0.0.8)
       _dependency(org.clojure, test.check, 1.1.1, test)
       _dependency(org.clojure, test.generative, 1.1.0, test)
+      _dependency(org.clojure, tools.cli, 1.2.245)
       _dependency(org.clojure, tools.logging, 1.3.0)
       _dependency(org.clojure, tools.nrepl, 0.2.13, test)
       _dependency(org.clojure, tools.reader, 1.5.2)
@@ -238,16 +239,16 @@
         <enabled>true</enabled>
       </releases>
     </repository>
-    <!-- <repository> -->
-    <!--   <id>clojars</id> -->
-    <!--   <url>https://repo.clojars.org/</url> -->
-    <!--   <snapshots> -->
-    <!--     <enabled>true</enabled> -->
-    <!--   </snapshots> -->
-    <!--   <releases> -->
-    <!--     <enabled>true</enabled> -->
-    <!--   </releases> -->
-    <!-- </repository> -->
+    <repository>
+      <id>clojars</id>
+      <url>https://repo.clojars.org/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+    </repository>
   </repositories>
 </project>
 
