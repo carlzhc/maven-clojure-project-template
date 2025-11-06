@@ -52,6 +52,10 @@ target/$(artifactId)-$(version).uber.jar: $(src)
 run: package
 	$(mvn) clojure:run
 
+check: $(pom)
+	$(mvn) versions:display-plugin-updates
+	$(mvn) versions:display-dependency-updates
+
 clean: $(pom)
 	-$(mvn) clean
 
